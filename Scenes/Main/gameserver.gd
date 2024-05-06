@@ -11,7 +11,11 @@ static var is_peer_connected: bool
 @export var default_ip: String = "127.0.0.1"
 @export var use_localhost_in_editor: bool
 
+@onready var verification_process = $PlayerVerification
+
 var peer
+
+var expected_tokens = []
 
 func _ready() -> void:
 	var args = parse_cmdline_args()
@@ -56,7 +60,7 @@ func start_server(args: Dictionary) -> void:
 
 func peer_connected(id: int) -> void:
 	print("Peer connected: " + str(id))
-	$PlayerVerification.start(id)
+	verification_process.start(id)
 
 
 func peer_disconnected(id: int) -> void:
@@ -80,12 +84,30 @@ func ReturnPlayerStats(player_id, results):
 	print(results)
 	ReturnPlayerStats.rpc_id(player_id, results)
 
+@rpc("authority", "call_remote", "reliable")
+func FetchToken(player_id):
+	FetchToken.rpc_id(player_id)
 
+@rpc("any_peer", "call_remote", "reliable")
+func ReturnToken(token):
+	var player_id = multiplayer.get_remote_sender_id()
+	print(token)
+	verification_process.Verify(player_id, token)
 
+@rpc("authority", "call_remote", "reliable")
+func ReturnTokenVerificationResults(player_id, result):
+	ReturnTokenVerificationResults.rpc_id(player_id, result)
 
-
-
-
-
-
+func _on_token_expiration_timeout():
+	var current_time = int(Time.get_unix_time_from_system())
+	var token_time
+	if expected_tokens==[]:
+		pass
+	else:
+		for i in range(expected_tokens.size() -1, -1, -1):
+			token_time = int(expected_tokens[i].right(10))
+			if current_time - token_time >= 30:
+				expected_tokens.remove(i)
+		print("Expected Tokens:")
+		print(expected_tokens)
 

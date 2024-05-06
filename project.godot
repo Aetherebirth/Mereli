@@ -18,6 +18,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 ServerData="*res://Scenes/Singletons/ServerData.gd"
+HubConnection="*res://Scenes/Singletons/hub_connection.gd"
 
 [rendering]
 
