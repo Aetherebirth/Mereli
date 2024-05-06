@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://2vsbdyw74moq"]
+
+[ext_resource type="Script" path="res://Scenes/Main/gameserver.gd" id="1_ubg5c"]
+[ext_resource type="Script" path="res://Scenes/Main/player_verification.gd" id="2_bxcy6"]
+
+[node name="GameServer" type="Node2D"]
+script = ExtResource("1_ubg5c")
+
+[node name="PlayerVerification" type="Node" parent="."]
+script = ExtResource("2_bxcy6")

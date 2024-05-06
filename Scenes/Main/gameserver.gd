@@ -54,17 +54,9 @@ func start_server(args: Dictionary) -> void:
 	multiplayer.peer_disconnected.connect(peer_disconnected)
 
 
-func connected_to_server() -> void:
-	print("Connected to server")
-	connected.emit()
-
-func server_connection_failure() -> void:
-	print("Disconnected")
-	disconnected.emit()
-
-
 func peer_connected(id: int) -> void:
 	print("Peer connected: " + str(id))
+	$PlayerVerification.start(id)
 
 
 func peer_disconnected(id: int) -> void:
@@ -74,6 +66,25 @@ func peer_disconnected(id: int) -> void:
 func disconnect_all() -> void:
 	multiplayer.peer_connected.disconnect(peer_connected)
 	multiplayer.peer_disconnected.disconnect(peer_disconnected)
-	multiplayer.connected_to_server.disconnect(connected_to_server)
-	multiplayer.server_disconnected.disconnect(server_connection_failure)
-	multiplayer.connection_failed.disconnect(server_connection_failure)
+
+
+@rpc("any_peer", "reliable")
+func FetchPlayerStats():
+	print("Client requested stats")
+	var player_id = multiplayer.get_remote_sender_id()
+	ReturnPlayerStats(player_id, get_node(str(player_id)).player_data)
+
+@rpc("authority", "call_remote", "reliable")
+func ReturnPlayerStats(player_id, results):
+	print(results)
+	ReturnPlayerStats.rpc_id(player_id, results)
+
+
+
+
+
+
+
+
+
+

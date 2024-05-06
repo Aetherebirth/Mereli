@@ -11,9 +11,13 @@ config_version=5
 [application]
 
 config/name="Aetherebirth-server"
-run/main_scene="res://Scenes/Main/Server.tscn"
+run/main_scene="res://Scenes/Main/GameServer.tscn"
 config/features=PackedStringArray("4.2", "Mobile")
 config/icon="res://icon.svg"
+
+[autoload]
+
+ServerData="*res://Scenes/Singletons/ServerData.gd"
 
 [rendering]
 
