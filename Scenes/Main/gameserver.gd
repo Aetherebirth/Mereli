@@ -61,6 +61,7 @@ func peer_connected(id: int) -> void:
 
 func peer_disconnected(id: int) -> void:
 	print("Peer disconnected: " + str(id))
+	get_node(str(id)).queue_free()
 
 
 func disconnect_all() -> void:
