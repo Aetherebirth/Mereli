@@ -138,4 +138,22 @@ func _on_token_expiration_timeout():
 				expected_tokens.erase(i)
 		print("Expected Tokens:")
 		print(expected_tokens)
+		
 
+@rpc("any_peer", "call_remote", "reliable")
+func FetchServerTime(client_time):
+	var player_id = multiplayer.get_remote_sender_id()
+	ReturnServerTime(player_id, int(Time.get_unix_time_from_system()*1000), client_time)
+
+@rpc("authority", "call_remote", "reliable")
+func ReturnServerTime(player_id, server_time, client_time):
+	ReturnServerTime.rpc_id(player_id, server_time, client_time)
+
+@rpc("any_peer", "call_remote", "reliable")
+func DetermineLatency(client_time):
+	var player_id = multiplayer.get_remote_sender_id()
+	ReturnLatency.rpc_id(player_id, client_time)
+
+@rpc("authority", "call_remote", "reliable")
+func ReturnLatency(client_time):
+	pass
