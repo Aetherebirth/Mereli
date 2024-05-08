@@ -8,7 +8,6 @@ static var is_peer_connected: bool
 
 @export var default_port: int = 6944
 @export var max_clients: int
-@export var default_ip: String = "127.0.0.1"
 @export var use_localhost_in_editor: bool
 
 @onready var verification_process = $PlayerVerification
