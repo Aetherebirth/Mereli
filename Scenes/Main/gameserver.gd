@@ -17,6 +17,8 @@ var peer
 
 var expected_tokens = []
 
+var player_state_collection := {}
+
 func _ready() -> void:
 	var args = parse_cmdline_args()
 	start_server(args)
@@ -106,7 +108,23 @@ func SpawnNewPlayer(player_id, position):
 	SpawnNewPlayer.rpc_id(0, player_id, position)
 @rpc("authority", "call_remote", "reliable")
 func DespawnPlayer(player_id):
+	player_state_collection.erase(player_id)
 	DespawnPlayer.rpc_id(0, player_id)
+
+
+
+@rpc("any_peer", "call_remote", "unreliable")
+func SendPlayerState(player_state):
+	var player_id = multiplayer.get_remote_sender_id()
+	if player_state_collection.has(player_id): # Check if player is known in current collection
+		if player_state_collection[player_id]["T"] < player_state["T"]:
+			player_state_collection[player_id] = player_state # Replace player state in the collection
+	else:
+		player_state_collection[player_id] = player_state
+
+@rpc("any_peer", "call_remote", "unreliable")
+func SendWorldState(world_state):
+	SendWorldState.rpc_id(0, world_state)
 
 func _on_token_expiration_timeout():
 	var current_time = int(Time.get_unix_time_from_system())
@@ -117,7 +135,7 @@ func _on_token_expiration_timeout():
 		for i in range(expected_tokens.size() -1, -1, -1):
 			token_time = int(expected_tokens[i].right(10))
 			if current_time - token_time >= 30:
-				expected_tokens.remove(i)
+				expected_tokens.erase(i)
 		print("Expected Tokens:")
 		print(expected_tokens)
 

@@ -20,6 +20,10 @@ config/icon="res://icon.svg"
 ServerData="*res://Scenes/Singletons/ServerData.gd"
 HubConnection="*res://Scenes/Singletons/hub_connection.gd"
 
+[physics]
+
+common/physics_ticks_per_second=20
+
 [rendering]
 
 renderer/rendering_method="mobile"
