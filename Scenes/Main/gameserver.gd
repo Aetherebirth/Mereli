@@ -79,7 +79,7 @@ func disconnect_all() -> void:
 func FetchPlayerStats():
 	print("Client requested stats")
 	var player_id = multiplayer.get_remote_sender_id()
-	ReturnPlayerStats(player_id, get_node(str(player_id)).player_data)
+	ReturnPlayerStats(player_id, get_node(str(player_id)).player_private_data)
 
 @rpc("authority", "call_remote", "reliable")
 func ReturnPlayerStats(player_id, results):
@@ -100,11 +100,11 @@ func ReturnToken(token):
 func ReturnTokenVerificationResults(player_id, result):
 	ReturnTokenVerificationResults.rpc_id(player_id, result)
 	if(result==true):
-		SpawnNewPlayer(player_id, Vector2(10, 10), get_node(str(player_id)).player_public_data)
+		SpawnNewPlayer(player_id, Vector2(10, 10))
 		
 @rpc("authority", "call_remote", "reliable")
-func SpawnNewPlayer(player_id, position, public_data):
-	SpawnNewPlayer.rpc_id(0, player_id, position, public_data)
+func SpawnNewPlayer(player_id, position):
+	SpawnNewPlayer.rpc_id(0, player_id, position)
 
 @rpc("authority", "call_remote", "reliable")
 func DespawnPlayer(player_id):
@@ -153,7 +153,14 @@ func ReturnServerTime(player_id, server_time, client_time):
 func DetermineLatency(client_time):
 	var player_id = multiplayer.get_remote_sender_id()
 	ReturnLatency.rpc_id(player_id, client_time)
+	
+@rpc("authority", "call_remote", "reliable")
+func ReturnLatency(client_time):pass
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func AskPlayerData(player_id):
+	ReceivePlayerData.rpc_id(multiplayer.get_remote_sender_id(), player_id, get_node(str(player_id)).player_public_data)
 
 @rpc("authority", "call_remote", "reliable")
-func ReturnLatency(client_time):
-	pass
+func ReceivePlayerData(player_id, data):pass
