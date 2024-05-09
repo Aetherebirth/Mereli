@@ -29,9 +29,9 @@ func _ready() -> void:
 
 
 @rpc("any_peer", "reliable")
-func DistributeLoginToken(token):
+func DistributeLoginToken(token, player_private_data):
 	print("Received token from hub")
-	get_node("/root/GameServer").expected_tokens.append(token)
+	get_node("/root/GameServer").expected_tokens[token] = player_private_data
 	
 
 func _connection_failed() -> void:

@@ -1,6 +1,7 @@
 extends Node
 
-var player_data
+var player_private_data
+var player_public_data
 
 # Called when the node enters the scene tree for the first time.
 func _ready():

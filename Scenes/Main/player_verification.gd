@@ -9,12 +9,12 @@ func start(player_id):
 	awaiting_verification[player_id] = {"Timestamp": int(Time.get_unix_time_from_system())}
 	main_interface.FetchToken(player_id)
 
-func Verify(player_id, token: String):
+func Verify(player_id, token: String, player_private_data):
 	var token_verification = false
 	while int(Time.get_unix_time_from_system()) - int(token.right(10)) <= 30:
 		if main_interface.expected_tokens.has(token):
 			token_verification = true
-			CreatePlayerContainer(player_id)
+			CreatePlayerContainer(player_id, player_private_data)
 			awaiting_verification.erase(player_id)
 			main_interface.expected_tokens.erase(token)
 			break
@@ -27,15 +27,17 @@ func Verify(player_id, token: String):
 
 
 
-func CreatePlayerContainer(player_id):
+func CreatePlayerContainer(player_id, player_private_data):
 	var new_player_container = player_container_scene.instantiate()
 	new_player_container.name = str(player_id)
 	get_parent().add_child(new_player_container, true)
 	var player_container = get_parent().get_node(str(player_id))
-	FillPlayerContainer(player_container)
+	FillPlayerContainer(player_container, player_private_data)
 
-func FillPlayerContainer(player_container):
-	player_container.player_data = ServerData.test_data
+func FillPlayerContainer(player_container, player_private_data):
+	player_container.player_public_data = ServerData.test_data
+	player_container.player_public_data.username = player_private_data.username
+	player_container.player_private_data = player_private_data
 
 
 func _on_verification_expiration_timeout():

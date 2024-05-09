@@ -14,7 +14,7 @@ static var is_peer_connected: bool
 
 var peer
 
-var expected_tokens = []
+var expected_tokens = {}
 
 var player_state_collection := {}
 
@@ -94,17 +94,18 @@ func FetchToken(player_id):
 func ReturnToken(token):
 	var player_id = multiplayer.get_remote_sender_id()
 	print(token)
-	verification_process.Verify(player_id, token)
+	verification_process.Verify(player_id, token, expected_tokens[token])
 
 @rpc("authority", "call_remote", "reliable")
 func ReturnTokenVerificationResults(player_id, result):
 	ReturnTokenVerificationResults.rpc_id(player_id, result)
 	if(result==true):
-		SpawnNewPlayer(player_id, Vector2(10, 10))
+		SpawnNewPlayer(player_id, Vector2(10, 10), get_node(str(player_id)).player_public_data)
 		
 @rpc("authority", "call_remote", "reliable")
-func SpawnNewPlayer(player_id, position):
-	SpawnNewPlayer.rpc_id(0, player_id, position)
+func SpawnNewPlayer(player_id, position, public_data):
+	SpawnNewPlayer.rpc_id(0, player_id, position, public_data)
+
 @rpc("authority", "call_remote", "reliable")
 func DespawnPlayer(player_id):
 	player_state_collection.erase(player_id)
@@ -128,13 +129,13 @@ func SendWorldState(world_state):
 func _on_token_expiration_timeout():
 	var current_time = int(Time.get_unix_time_from_system())
 	var token_time
-	if expected_tokens==[]:
+	if expected_tokens=={}:
 		pass
 	else:
-		for i in range(expected_tokens.size() -1, -1, -1):
-			token_time = int(expected_tokens[i].right(10))
+		for token in expected_tokens.keys():
+			token_time = int(token.right(10))
 			if current_time - token_time >= 30:
-				expected_tokens.erase(i)
+				expected_tokens.erase(token)
 		print("Expected Tokens:")
 		print(expected_tokens)
 		
