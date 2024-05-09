@@ -8,7 +8,8 @@ func _physics_process(delta):
 		world_state = get_parent().player_state_collection.duplicate(true)
 		for player_id in world_state.keys():
 			world_state[player_id].erase("T")
-			world_state[player_id]["D"] = get_parent().get_node(str(player_id)).player_public_data
+			world_state[player_id]["D"] = get_parent().get_node(str(player_id)).player_public_data.duplicate(true)
+			print(world_state[player_id])
 			#world_state[player_id]["D"] = get_parent().get_node(str(player_id)).player_public_data
 		world_state["T"] = int(Time.get_unix_time_from_system()*1000)
 		# Verifications

@@ -35,9 +35,9 @@ func CreatePlayerContainer(player_id, player_private_data):
 	FillPlayerContainer(player_container, player_private_data)
 
 func FillPlayerContainer(player_container, player_private_data):
-	player_container.player_public_data = ServerData.test_data
-	player_container.player_public_data.username = player_private_data.username
-	player_container.player_private_data = player_private_data
+	player_container.player_public_data = ServerData.test_data.duplicate(true)
+	player_container.player_public_data.username = player_private_data.duplicate(true).username
+	player_container.player_private_data = player_private_data.duplicate(true)
 
 
 func _on_verification_expiration_timeout():
