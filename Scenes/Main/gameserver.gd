@@ -164,3 +164,21 @@ func AskPlayerData(player_id):
 
 @rpc("authority", "call_remote", "reliable")
 func ReceivePlayerData(player_id, data):pass
+
+
+## Chat system
+@rpc("any_peer", "call_remote", "reliable")
+func SendChatMessage(message: String):
+	var player_id = multiplayer.get_remote_sender_id()
+	if(message.begins_with("/")):
+		ProcessCommand(player_id, message.replace("/", ""))
+	else:
+		print("%s:%s"%[str(player_id), message])
+		BroadcastChatMessage(player_id, message)
+
+func ProcessCommand(player_id, command):
+	print("%s was ran by %s"%[command, player_id])
+
+@rpc("authority", "call_remote", "reliable")
+func BroadcastChatMessage(player_id, message: String):
+	BroadcastChatMessage.rpc_id(0, player_id, message)
