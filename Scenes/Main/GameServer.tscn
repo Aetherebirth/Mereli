@@ -6,9 +6,6 @@
 
 [node name="GameServer" type="Node2D"]
 script = ExtResource("1_ubg5c")
-default_port = null
-max_clients = null
-use_localhost_in_editor = null
 
 [node name="PlayerVerification" type="Node" parent="."]
 script = ExtResource("2_bxcy6")

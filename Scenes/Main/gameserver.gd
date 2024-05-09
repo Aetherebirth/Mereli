@@ -169,13 +169,15 @@ func ReceivePlayerData(player_id, data):pass
 ## Chat system
 @rpc("any_peer", "call_remote", "reliable")
 func SendChatMessage(message: String, tab: String):
+	var escaped_message = message.replace("[", "[lb]")
 	var player_id = multiplayer.get_remote_sender_id()
-	if(message.begins_with("/")):
-		ProcessCommand(player_id, message.replace("/", ""))
+	if(escaped_message.begins_with("/")):
+		ProcessCommand(player_id, escaped_message.replace("/", ""))
 	else:
-		print("%s:%s"%[str(player_id), message])
-		BroadcastChatMessage(player_id, message, tab)
-const help_text = "Available commands:\n- /help\n- /kick <player>"
+		print("%s:%s"%[str(player_id), escaped_message])
+		BroadcastChatMessage(player_id, escaped_message, tab)
+
+const help_text = "[color=gray]Available commands:\n- /help\n- /kick <player>[/color]"
 func ProcessCommand(player_id: int, text: String):
 	var command = text.split(" ")
 	match command[0]:
