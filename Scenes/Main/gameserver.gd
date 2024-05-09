@@ -175,9 +175,33 @@ func SendChatMessage(message: String, tab: String):
 	else:
 		print("%s:%s"%[str(player_id), message])
 		BroadcastChatMessage(player_id, message, tab)
+const help_text = "Available commands:\n- /help\n- /kick <player>"
+func ProcessCommand(player_id: int, text: String):
+	var command = text.split(" ")
+	match command[0]:
+		"help":
+			ShowChatText(player_id, help_text)
+		"kick":
+			if(len(command)==2):
+				var target = command[1]
+				var target_node = GetNodeByUsername(target)
+				if(target_node):
+					ShowChatText(player_id, "%s was kicked !"%target)
+				else:
+					ShowChatText(player_id, "Target not found")
+			else:
+				ShowChatText(player_id, "Invalid syntax")
+		_:
+			ShowChatText(player_id, help_text)
 
-func ProcessCommand(player_id, command):
-	print("%s was ran by %s"%[command, player_id])
+func GetNodeByUsername(username: String):
+	for node in get_children():
+		if(is_instance_of(node, "PlayerContainer") and node.player_public_data.username==username):
+			return node
+
+@rpc("authority", "call_remote", "reliable")
+func ShowChatText(player_id: int, text: String):
+	ShowChatText.rpc_id(player_id, text)
 
 @rpc("authority", "call_remote", "reliable")
 func BroadcastChatMessage(player_id: int, message: String, tab: String):
