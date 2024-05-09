@@ -168,17 +168,21 @@ func ReceivePlayerData(player_id, data):pass
 
 ## Chat system
 @rpc("any_peer", "call_remote", "reliable")
-func SendChatMessage(message: String):
+func SendChatMessage(message: String, tab: String):
 	var player_id = multiplayer.get_remote_sender_id()
 	if(message.begins_with("/")):
 		ProcessCommand(player_id, message.replace("/", ""))
 	else:
 		print("%s:%s"%[str(player_id), message])
-		BroadcastChatMessage(player_id, message)
+		BroadcastChatMessage(player_id, message, tab)
 
 func ProcessCommand(player_id, command):
 	print("%s was ran by %s"%[command, player_id])
 
 @rpc("authority", "call_remote", "reliable")
-func BroadcastChatMessage(player_id, message: String):
-	BroadcastChatMessage.rpc_id(0, player_id, message)
+func BroadcastChatMessage(player_id: int, message: String, tab: String):
+	if(tab=="server"):
+		BroadcastChatMessage.rpc_id(0, player_id, message, "server")
+	elif(tab=="squad"):
+		# Only broadcast to squad members
+		BroadcastChatMessage.rpc_id(0, player_id, message, "squad")
