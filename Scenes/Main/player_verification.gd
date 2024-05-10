@@ -32,12 +32,19 @@ func CreatePlayerContainer(player_id, player_private_data):
 	new_player_container.name = str(player_id)
 	get_parent().add_child(new_player_container, true)
 	var player_container = get_parent().get_node(str(player_id))
-	FillPlayerContainer(player_container, player_private_data)
+	FillPlayerContainer(player_id, player_container, player_private_data)
 
-func FillPlayerContainer(player_container, player_private_data):
+func FillPlayerContainer(player_id, player_container, player_private_data):
 	player_container.player_public_data = ServerData.test_data.duplicate(true)
-	player_container.player_public_data.username = player_private_data.duplicate(true).username
-	player_container.player_private_data = player_private_data.duplicate(true)
+	player_container.player_public_data.username = player_private_data.username
+	player_container.player_public_data.guild = player_private_data.guild
+	player_container.player_private_data = player_private_data
+	var player_guild = player_container.player_public_data.guild
+	print(player_guild)
+	if(get_parent().player_guilds.has(str(player_guild.id))):
+		get_parent().player_guilds[str(player_guild.id)].append(player_id)
+	else:
+		get_parent().player_guilds[str(player_guild.id)] = [player_id]
 
 
 func _on_verification_expiration_timeout():

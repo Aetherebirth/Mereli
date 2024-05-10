@@ -18,6 +18,8 @@ var expected_tokens = {}
 
 var player_state_collection := {}
 
+var player_guilds := {}#GuildId: [Player1Id, Player2Id]
+
 func _ready() -> void:
 	var args = parse_cmdline_args()
 	start_server(args)
@@ -171,11 +173,13 @@ func ReceivePlayerData(player_id, data):pass
 func SendChatMessage(message: String, tab: String):
 	var escaped_message = message.replace("[", "[lb]")
 	var player_id = multiplayer.get_remote_sender_id()
+	var player_username = get_node(str(player_id)).player_public_data.username
 	if(escaped_message.begins_with("/")):
-		ProcessCommand(player_id, escaped_message.replace("/", ""))
+		ProcessCommand(player_username, escaped_message.replace("/", ""))
+	elif(tab=="global" or tab=="guild"):
+		HubConnection.BroadcastChatMessage(player_username, escaped_message, tab)
 	else:
-		print("%s:%s"%[str(player_id), escaped_message])
-		BroadcastChatMessage(player_id, escaped_message, tab)
+		BroadcastChatMessage(player_username, escaped_message, tab)
 
 const help_text = "[color=gray]Available commands:\n- /help\n- /kick <player>[/color]"
 func ProcessCommand(player_id: int, text: String):
@@ -207,8 +211,15 @@ func ShowChatText(player_id: int, text: String):
 
 @rpc("authority", "call_remote", "reliable")
 func BroadcastChatMessage(player_id: int, message: String, tab: String):
-	if(tab=="server"):
-		BroadcastChatMessage.rpc_id(0, player_id, message, "server")
-	elif(tab=="squad"):
-		# Only broadcast to squad members
+	if(tab=="squad"):
 		BroadcastChatMessage.rpc_id(0, player_id, message, "squad")
+
+@rpc("authority", "call_remote", "reliable")
+func SendGlobalChatMessage(username: String, escaped_message: String):
+	SendGlobalChatMessage.rpc_id(0, username, escaped_message)
+
+@rpc("authority", "call_remote", "reliable")
+func SendGuildChatMessage(username: String, escaped_message: String, guild_id: int):
+	if(player_guilds.has(str(guild_id))):
+		for member_id in player_guilds[str(guild_id)]:
+			SendGuildChatMessage.rpc_id(member_id, username, escaped_message)
