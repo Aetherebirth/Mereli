@@ -96,6 +96,7 @@ func FetchToken(player_id):
 func ReturnToken(token):
 	var player_id = multiplayer.get_remote_sender_id()
 	print(token)
+	print(expected_tokens)
 	verification_process.Verify(player_id, token, expected_tokens[token])
 
 @rpc("authority", "call_remote", "reliable")
@@ -175,11 +176,11 @@ func SendChatMessage(message: String, tab: String):
 	var player_id = multiplayer.get_remote_sender_id()
 	var player_username = get_node(str(player_id)).player_public_data.username
 	if(escaped_message.begins_with("/")):
-		ProcessCommand(player_username, escaped_message.replace("/", ""))
+		ProcessCommand(player_id, escaped_message.replace("/", ""))
 	elif(tab=="global" or tab=="guild"):
 		HubConnection.BroadcastChatMessage(player_username, escaped_message, tab)
 	else:
-		BroadcastChatMessage(player_username, escaped_message, tab)
+		BroadcastChatMessage(player_id, escaped_message, tab)
 
 const help_text = "[color=gray]Available commands:\n- /help\n- /kick <player>[/color]"
 func ProcessCommand(player_id: int, text: String):
