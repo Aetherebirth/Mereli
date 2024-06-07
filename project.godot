@@ -12,13 +12,17 @@ config_version=5
 
 config/name="Mereli"
 run/main_scene="res://Scenes/Main/GameServer.tscn"
-config/features=PackedStringArray("4.2", "Mobile")
+config/features=PackedStringArray("4.2", "C#", "Mobile")
 config/icon="res://icon.svg"
 
 [autoload]
 
 ServerData="*res://Scenes/Singletons/ServerData.gd"
 HubConnection="*res://Scenes/Singletons/hub_connection.gd"
+
+[dotnet]
+
+project/assembly_name="Mereli"
 
 [physics]
 
