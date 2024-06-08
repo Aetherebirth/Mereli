@@ -16,7 +16,7 @@ var peer
 
 var expected_tokens = {}
 
-var entity_state_collection := {"players": {}}
+var entity_state_collection := {"player": {}}
 
 var player_guilds := {}#GuildId: [Player1Id, Player2Id]
 
@@ -111,19 +111,19 @@ func SpawnNewPlayer(player_id, position):
 
 @rpc("authority", "call_remote", "reliable")
 func DespawnPlayer(player_id):
-	entity_state_collection.players.erase(player_id)
+	entity_state_collection.player.erase(player_id)
 	DespawnPlayer.rpc_id(0, player_id)
 
 
 
 @rpc("any_peer", "call_remote", "unreliable")
 func SendPlayerState(player_state):
-	var player_id = multiplayer.get_remote_sender_id()
-	if entity_state_collection.players.has(player_id): # Check if player is known in current collection
-		if entity_state_collection.players[player_id]["T"] < player_state["T"]:
-			entity_state_collection.players[player_id] = player_state # Replace player state in the collection
+	var player_id = str(multiplayer.get_remote_sender_id())
+	if entity_state_collection.player.has(player_id): # Check if player is known in current collection
+		if entity_state_collection.player[player_id]["T"] < player_state["T"]:
+			entity_state_collection.player[player_id] = player_state # Replace player state in the collection
 	else:
-		entity_state_collection.players[player_id] = player_state
+		entity_state_collection.player[player_id] = player_state
 
 @rpc("any_peer", "call_remote", "unreliable")
 func SendWorldState(world_state):
