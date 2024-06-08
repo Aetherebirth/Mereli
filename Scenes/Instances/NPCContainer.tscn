@@ -2,5 +2,5 @@
 
 [ext_resource type="Script" path="res://Scenes/Instances/npc_container.gd" id="1_i5ymy"]
 
-[node name="NpcContainer" type="Node"]
+[node name="NpcContainer" type="Node2D"]
 script = ExtResource("1_i5ymy")

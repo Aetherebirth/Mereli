@@ -119,6 +119,7 @@ func DespawnPlayer(player_id):
 @rpc("any_peer", "call_remote", "unreliable")
 func SendPlayerState(player_state):
 	var player_id = str(multiplayer.get_remote_sender_id())
+	get_node("Entities/player/%s"%player_id).position = player_state.P
 	if entity_state_collection.player.has(player_id): # Check if player is known in current collection
 		if entity_state_collection.player[player_id]["T"] < player_state["T"]:
 			entity_state_collection.player[player_id] = player_state # Replace player state in the collection
