@@ -1,9 +1,5 @@
 extends Node
 
-@onready var entity_container_scenes = {
-	"player": preload("res://Scenes/Instances/PlayerContainer.tscn"),
-	"npc": preload("res://Scenes/Instances/NPCContainer.tscn")
-}
 @onready var main_interface = get_parent()
 
 var awaiting_verification = {}
@@ -17,7 +13,7 @@ func Verify(player_id, token: String, private_data: Dictionary):
 	while int(Time.get_unix_time_from_system()) - int(token.right(10)) <= 30:
 		if main_interface.expected_tokens.has(token):
 			token_verification = true
-			CreateEntityContainer("player", str(player_id), private_data)
+			CreatePlayerContainer(str(player_id), private_data)
 			awaiting_verification.erase(player_id)
 			main_interface.expected_tokens.erase(token)
 			break
@@ -29,13 +25,9 @@ func Verify(player_id, token: String, private_data: Dictionary):
 		main_interface.network.disconnect_peer(player_id)
 
 
-
-func CreateEntityContainer(entity_type: String, entity_id: String, private_data: Dictionary):
-	var new_container = entity_container_scenes[entity_type].instantiate()
-	new_container.name = str(entity_id)
-	get_parent().get_node("Entities/%s"%entity_type).add_child(new_container, true)
-	var container = get_parent().get_node("Entities/%s"%entity_type).get_node(str(entity_id))
-	FillPlayerContainer(entity_id, container, private_data)
+func CreatePlayerContainer(player_id: String, private_data: Dictionary):
+	var container = get_parent().get_node("EntityProcessing").CreateEntityContainer("player", player_id, private_data)
+	FillPlayerContainer(player_id, container, private_data)
 
 func FillPlayerContainer(player_id, player_container, private_data):
 	player_container.public_data = ServerData.test_data.duplicate(true)

@@ -16,9 +16,7 @@ var peer
 
 var expected_tokens = {}
 
-@onready var entity_state_collection := {"player": {}, "npc": {
-	GuidHelper.GenerateGuid(): {"P": Vector2(10, 10)}
-}, "ennemy": {}, "object": {}}
+@onready var entity_state_collection := {"player": {}, "npc": {}, "ennemy": {}, "object": {}}
 
 var player_guilds := {}#GuildId: [Player1Id, Player2Id]
 
@@ -165,7 +163,12 @@ func ReturnLatency(client_time):pass
 
 @rpc("any_peer", "call_remote", "reliable")
 func AskEntityData(entity_type, entity_id):
-	ReceiveEntityData.rpc_id(multiplayer.get_remote_sender_id(), entity_type, entity_id, get_node("Entities/%s/%s"%[entity_type, str(entity_id)]).public_data)
+	print(get_node("Entities/%s/%s"%[entity_type, str(entity_id)]).public_data)
+	ReceiveEntityData.rpc_id(
+		multiplayer.get_remote_sender_id(),
+		entity_type, entity_id,
+		get_node("Entities/%s/%s"%[entity_type, str(entity_id)]).public_data
+	)
 
 @rpc("authority", "call_remote", "reliable")
 func ReceiveEntityData(entity_type, entity_id, data):pass
