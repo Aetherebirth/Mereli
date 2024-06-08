@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://douvofc53ekba"]
+
+[ext_resource type="Script" path="res://Scenes/Instances/npc_container.gd" id="1_i5ymy"]
+
+[node name="NpcContainer" type="Node"]
+script = ExtResource("1_i5ymy")

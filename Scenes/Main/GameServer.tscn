@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://2vsbdyw74moq"]
+[gd_scene load_steps=5 format=3 uid="uid://2vsbdyw74moq"]
 
 [ext_resource type="Script" path="res://Scenes/Main/gameserver.gd" id="1_ubg5c"]
 [ext_resource type="Script" path="res://Scenes/Main/player_verification.gd" id="2_bxcy6"]
 [ext_resource type="Script" path="res://Scenes/Singletons/StateProcessing.gd" id="3_04a18"]
+[ext_resource type="Script" path="res://Scenes/Main/EntityProcessing.gd" id="4_27ohe"]
 
 [node name="GameServer" type="Node2D"]
 script = ExtResource("1_ubg5c")
@@ -19,7 +20,16 @@ autostart = true
 [node name="StateProcessing" type="Node" parent="."]
 script = ExtResource("3_04a18")
 
+[node name="EntityProcessing" type="Node" parent="."]
+script = ExtResource("4_27ohe")
+
 [node name="Map" type="Node" parent="."]
+
+[node name="Entities" type="Node2D" parent="."]
+
+[node name="player" type="Node2D" parent="Entities"]
+
+[node name="npc" type="Node2D" parent="Entities"]
 
 [connection signal="timeout" from="PlayerVerification/VerificationExpiration" to="PlayerVerification" method="_on_verification_expiration_timeout"]
 [connection signal="timeout" from="TokenExpiration" to="." method="_on_token_expiration_timeout"]

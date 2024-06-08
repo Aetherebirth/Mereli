@@ -16,7 +16,9 @@ var peer
 
 var expected_tokens = {}
 
-var entity_state_collection := {"player": {}}
+@onready var entity_state_collection := {"player": {}, "npc": {
+	GuidHelper.GenerateGuid(): {"P": Vector2(10, 10)}
+}, "ennemy": {}, "object": {}}
 
 var player_guilds := {}#GuildId: [Player1Id, Player2Id]
 
@@ -69,7 +71,7 @@ func peer_connected(id: int) -> void:
 func peer_disconnected(id: int) -> void:
 	print("Peer disconnected: " + str(id))
 	DespawnPlayer(id)
-	get_node(str(id)).queue_free()
+	get_node("Entities/player/%s"%str(id)).queue_free()
 
 
 func disconnect_all() -> void:
@@ -81,7 +83,7 @@ func disconnect_all() -> void:
 func FetchPlayerStats():
 	print("Client requested stats")
 	var player_id = multiplayer.get_remote_sender_id()
-	ReturnPlayerStats(player_id, get_node(str(player_id)).player_private_data)
+	ReturnPlayerStats(player_id, get_node(str(player_id)).private_data)
 
 @rpc("authority", "call_remote", "reliable")
 func ReturnPlayerStats(player_id, results):
@@ -162,11 +164,11 @@ func ReturnLatency(client_time):pass
 
 
 @rpc("any_peer", "call_remote", "reliable")
-func AskPlayerData(player_id):
-	ReceivePlayerData.rpc_id(multiplayer.get_remote_sender_id(), player_id, get_node(str(player_id)).player_public_data)
+func AskEntityData(entity_type, entity_id):
+	ReceiveEntityData.rpc_id(multiplayer.get_remote_sender_id(), entity_type, entity_id, get_node("Entities/%s/%s"%[entity_type, str(entity_id)]).public_data)
 
 @rpc("authority", "call_remote", "reliable")
-func ReceivePlayerData(player_id, data):pass
+func ReceiveEntityData(entity_type, entity_id, data):pass
 
 
 ## Chat system
@@ -174,7 +176,7 @@ func ReceivePlayerData(player_id, data):pass
 func SendChatMessage(message: String, tab: String):
 	var escaped_message = message.replace("[", "[lb]")
 	var player_id = multiplayer.get_remote_sender_id()
-	var player_username = get_node(str(player_id)).player_public_data.username
+	var player_username = get_node(str(player_id)).public_data.name
 	if(escaped_message.begins_with("/")):
 		ProcessCommand(player_id, escaped_message.replace("/", ""))
 	elif(tab=="global" or tab=="guild"):
@@ -203,7 +205,7 @@ func ProcessCommand(player_id: int, text: String):
 
 func GetNodeByUsername(username: String):
 	for node in get_children():
-		if(is_instance_of(node, "PlayerContainer") and node.player_public_data.username==username):
+		if(is_instance_of(node, "PlayerContainer") and node.public_data.name==username):
 			return node
 
 @rpc("authority", "call_remote", "reliable")

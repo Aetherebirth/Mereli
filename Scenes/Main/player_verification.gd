@@ -1,6 +1,9 @@
 extends Node
 
-@onready var player_container_scene = preload("res://Scenes/Instances/PlayerContainer.tscn")
+@onready var entity_container_scenes = {
+	"player": preload("res://Scenes/Instances/PlayerContainer.tscn"),
+	"npc": preload("res://Scenes/Instances/NPCContainer.tscn")
+}
 @onready var main_interface = get_parent()
 
 var awaiting_verification = {}
@@ -9,12 +12,12 @@ func start(player_id):
 	awaiting_verification[player_id] = {"Timestamp": int(Time.get_unix_time_from_system())}
 	main_interface.FetchToken(player_id)
 
-func Verify(player_id, token: String, player_private_data):
+func Verify(player_id, token: String, private_data: Dictionary):
 	var token_verification = false
 	while int(Time.get_unix_time_from_system()) - int(token.right(10)) <= 30:
 		if main_interface.expected_tokens.has(token):
 			token_verification = true
-			CreatePlayerContainer(player_id, player_private_data)
+			CreateEntityContainer("player", str(player_id), private_data)
 			awaiting_verification.erase(player_id)
 			main_interface.expected_tokens.erase(token)
 			break
@@ -27,19 +30,19 @@ func Verify(player_id, token: String, player_private_data):
 
 
 
-func CreatePlayerContainer(player_id, player_private_data):
-	var new_player_container = player_container_scene.instantiate()
-	new_player_container.name = str(player_id)
-	get_parent().add_child(new_player_container, true)
-	var player_container = get_parent().get_node(str(player_id))
-	FillPlayerContainer(player_id, player_container, player_private_data)
+func CreateEntityContainer(entity_type: String, entity_id: String, private_data: Dictionary):
+	var new_container = entity_container_scenes[entity_type].instantiate()
+	new_container.name = str(entity_id)
+	get_parent().get_node("Entities/%s"%entity_type).add_child(new_container, true)
+	var container = get_parent().get_node("Entities/%s"%entity_type).get_node(str(entity_id))
+	FillPlayerContainer(entity_id, container, private_data)
 
-func FillPlayerContainer(player_id, player_container, player_private_data):
-	player_container.player_public_data = ServerData.test_data.duplicate(true)
-	player_container.player_public_data.username = player_private_data.username
-	player_container.player_public_data.guild = player_private_data.guild
-	player_container.player_private_data = player_private_data
-	var player_guild = player_container.player_public_data.guild
+func FillPlayerContainer(player_id, player_container, private_data):
+	player_container.public_data = ServerData.test_data.duplicate(true)
+	player_container.public_data.name = private_data.name
+	player_container.public_data.guild = private_data.guild
+	player_container.private_data = private_data
+	var player_guild = player_container.public_data.guild
 	print(player_guild)
 	if(get_parent().player_guilds.has(str(player_guild.id))):
 		get_parent().player_guilds[str(player_guild.id)].append(player_id)
