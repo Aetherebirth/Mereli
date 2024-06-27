@@ -1,16 +1,25 @@
 extends Node
 
 @onready var entity_container_scenes = {
-	"player": preload("res://Scenes/Instances/PlayerContainer.tscn"),
-	"npc": preload("res://Scenes/Instances/NPCContainer.tscn")
+	EntityHelper.Type.PLAYER: preload("res://Scenes/Instances/PlayerContainer.tscn"),
+	EntityHelper.Type.NPC: preload("res://Scenes/Instances/NPCContainer.tscn")
 }
 
 func _ready():
-	CreateEntityContainer("npc", GuidHelper.GenerateGuid(), {"P": Vector2(0, 0)}, {"name": "Billy"})
+	create_entity_stores()
+	
+	CreateEntityContainer(EntityHelper.Type.NPC, GuidHelper.GenerateGuid(), {"P": Vector2(0, 0)}, {"name": "Billy"})
+
+func create_entity_stores():
+	for entity_type in EntityHelper.Type.values():
+		var entity_container = Node2D.new()
+		entity_container.name = str(entity_type)
+		get_node("/root/GameServer/Entities").add_child(entity_container)
+
 
 func _physics_process(delta):
 	var entity_state_collection = get_parent().entity_state_collection
-	var NPCs = entity_state_collection.npc
+	var NPCs = entity_state_collection[EntityHelper.Type.NPC]
 	for entity_type in entity_state_collection.keys():
 		for entity: EntityContainer in get_parent().get_node("Entities/%s"%entity_type).get_children():
 			if entity_state_collection[entity_type].has(entity.name):
@@ -23,7 +32,7 @@ func _physics_process(delta):
 				}
 
 
-func CreateEntityContainer(entity_type: String, entity_id: String, private_data: Dictionary, public_data={}):
+func CreateEntityContainer(entity_type: EntityHelper.Type, entity_id: String, private_data: Dictionary, public_data={}):
 	var new_container: EntityContainer = entity_container_scenes[entity_type].instantiate()
 	new_container.name = str(entity_id)
 	new_container.private_data = private_data

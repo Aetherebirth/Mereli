@@ -16,7 +16,7 @@ var peer
 
 var expected_tokens = {}
 
-@onready var entity_state_collection := {"player": {}, "npc": {}, "ennemy": {}, "object": {}}
+@onready var entity_state_collection := {EntityHelper.Type.PLAYER: {}, EntityHelper.Type.NPC: {}, EntityHelper.Type.ENNEMY: {}, EntityHelper.Type.OBJECT: {}}
 
 var player_guilds := {}#GuildId: [Player1Id, Player2Id]
 
@@ -26,7 +26,6 @@ func _ready() -> void:
 	connected.connect(func(): Connection.is_peer_connected = true)
 	disconnected.connect(func(): Connection.is_peer_connected = false)
 	disconnected.connect(disconnect_all)
-
 
 func parse_cmdline_args() -> Dictionary:
 	var cmdline_args = OS.get_cmdline_args()
@@ -69,7 +68,7 @@ func peer_connected(id: int) -> void:
 func peer_disconnected(id: int) -> void:
 	print("Peer disconnected: " + str(id))
 	DespawnPlayer(id)
-	get_node("Entities/player/%s"%str(id)).queue_free()
+	get_node("Entities/%s/%s"%[EntityHelper.Type.PLAYER, str(id)]).queue_free()
 
 
 func disconnect_all() -> void:
@@ -111,7 +110,7 @@ func SpawnNewPlayer(player_id, position):
 
 @rpc("authority", "call_remote", "reliable")
 func DespawnPlayer(player_id):
-	entity_state_collection.player.erase(player_id)
+	entity_state_collection[EntityHelper.Type.PLAYER].erase(player_id)
 	DespawnPlayer.rpc_id(0, player_id)
 
 
@@ -119,12 +118,12 @@ func DespawnPlayer(player_id):
 @rpc("any_peer", "call_remote", "unreliable")
 func SendPlayerState(player_state):
 	var player_id = str(multiplayer.get_remote_sender_id())
-	get_node("Entities/player/%s"%player_id).position = player_state.P
-	if entity_state_collection.player.has(player_id): # Check if player is known in current collection
-		if entity_state_collection.player[player_id]["T"] < player_state["T"]:
-			entity_state_collection.player[player_id] = player_state # Replace player state in the collection
+	get_node("Entities/%s/%s"%[EntityHelper.Type.PLAYER, player_id]).position = player_state.P
+	if entity_state_collection[EntityHelper.Type.PLAYER].has(player_id): # Check if player is known in current collection
+		if entity_state_collection[EntityHelper.Type.PLAYER][player_id]["T"] < player_state["T"]:
+			entity_state_collection[EntityHelper.Type.PLAYER][player_id] = player_state # Replace player state in the collection
 	else:
-		entity_state_collection.player[player_id] = player_state
+		entity_state_collection[EntityHelper.Type.PLAYER][player_id] = player_state
 
 @rpc("any_peer", "call_remote", "unreliable")
 func SendWorldState(world_state):

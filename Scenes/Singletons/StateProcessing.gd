@@ -4,7 +4,7 @@ class_name StateProcessing
 var world_state = {}
 
 func _physics_process(delta):
-	if not get_parent().entity_state_collection.player.is_empty():
+	if not get_parent().entity_state_collection[EntityHelper.Type.PLAYER].is_empty():
 		world_state = {}
 		world_state.entities = get_parent().entity_state_collection.duplicate(true)
 		for entity_type in world_state.entities:

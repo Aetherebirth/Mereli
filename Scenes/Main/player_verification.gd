@@ -26,7 +26,7 @@ func Verify(player_id, token: String, private_data: Dictionary):
 
 
 func CreatePlayerContainer(player_id: String, private_data: Dictionary):
-	var container = get_parent().get_node("EntityProcessing").CreateEntityContainer("player", player_id, private_data)
+	var container = get_parent().get_node("EntityProcessing").CreateEntityContainer(EntityHelper.Type.PLAYER, player_id, private_data)
 	FillPlayerContainer(player_id, container, private_data)
 
 func FillPlayerContainer(player_id, player_container, private_data):
