@@ -16,11 +16,13 @@ var peer
 
 var expected_tokens = {}
 
-@onready var entity_state_collection := {EntityHelper.Type.PLAYER: {}, EntityHelper.Type.NPC: {}, EntityHelper.Type.ENNEMY: {}, EntityHelper.Type.OBJECT: {}}
+var entity_state_collection := {}
 
 var player_guilds := {}#GuildId: [Player1Id, Player2Id]
 
 func _ready() -> void:
+	for etype in EntityHelper.Type.values():
+		entity_state_collection[etype] = {}
 	var args = parse_cmdline_args()
 	start_server(args)
 	connected.connect(func(): Connection.is_peer_connected = true)
